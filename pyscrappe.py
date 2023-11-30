@@ -1,5 +1,5 @@
 """
-scrap numbers of signatures from the website 
+scrap numbers of signatures from petition page:
 https://www.ourcommons.ca/petitions/en/Petition/Details?Petition=e-4701
 
 """
@@ -10,23 +10,24 @@ import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
+# /usr/local/bin/chromedriver - macos
+# /usr/bin/chromedriver       - linux
+from selenium.webdriver.chrome.options import Options
+
+options = Options()
+options.add_argument('--headless')
+options.add_argument('--no-sandbox')
+options.add_argument('--disable-dev-shm-usage')
+
 url = 'https://www.ourcommons.ca/petitions/en/Petition/Details?Petition=e-4701'
-driver = webdriver.Chrome()
+# driver = webdriver.Chrome()
+driver = webdriver.Chrome(options=options)
 driver.get(url)
 
 log_file_name = "log.txt"
-log_file = open(log_file_name, "w")
-data_file = open("data.csv", "w")
+log_file = open(log_file_name, "a")
+data_file = open("data.csv", "a")
 nr_of_loops = 2
-
-# allPageSourceText = driver.page_source
-# specific_element = driver.find_element_by_class_name('pet-table-col')
-# # Extract text content from the specific element
-
-# variant 2
-# a = driver.find_element(By.CLASS_NAME, "pet-table-col")
-# b = driver.find_element(By.PARTIAL_LINK_TEXT, "signatures")
-# print(b.text)   # '78350 signatures'
 
 if len(sys.argv) > 1:
     nr_of_loops = int(sys.argv[1])
@@ -34,15 +35,14 @@ if len(sys.argv) > 1:
 print("Number of loops: ", nr_of_loops)
 
 for i in range(nr_of_loops):
-
     # Need to expand the table with provinces
     button = driver.find_element(By.XPATH, "/html/body/div[3]/main/div/div/div/div/div[3]/div[4]/a")
     button.click()
     time.sleep(1)
 
-    # button.text - has all signatures number
+    # button.text - has all signatures value
 
-    # Get provinces table:
+    # Get provinces table
     canada_table = driver.find_element(By.XPATH, "/html/body/div[3]/main/div/div/div/div/div[3]/div[4]/div/div/table/tbody")
     rows = canada_table.find_elements(By.TAG_NAME, "tr")
 
@@ -72,10 +72,13 @@ for i in range(nr_of_loops):
             log_file.write("\n")
             print()
     data_file.write("\n")
+    data_file.flush()
     log_file.write("--------------------------------------------------------\n")
+    print("--------------------------------------------------------\n")
+    log_file.flush()
 
     driver.refresh()
-    time.sleep(10)
+    time.sleep(300)
 
 driver.quit()
 log_file.close()

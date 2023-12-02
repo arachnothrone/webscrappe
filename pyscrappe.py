@@ -48,9 +48,15 @@ for i in range(nr_of_loops):
 
     current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     print("Current time: {}, overall: {}".format(current_time, button.text))
+    
+    # Write time stamp
     data_file.write(current_time)
     data_file.write(",")
-    data_file.write(button.text)
+    
+    # Extract number of Canada signatures from button text (e.g. "1234 signatures" -> "1234")
+    maybe_sigs = button.text.split(" ")[0]
+    sigs = maybe_sigs if maybe_sigs.isdecimal() else ""
+    data_file.write(sigs)       # signatures
 
     # Table contains 13 rows, 2 columns in a row
     for row in rows:
@@ -59,9 +65,9 @@ for i in range(nr_of_loops):
             print("Province: {0:30s}, signatures: {1:6d}".format(cols[0].text, int(cols[1].text)))
             log_file.write("{:20s} {:30s} {:s}\n".format(current_time, cols[0].text, cols[1].text))
             data_file.write(",")
-            data_file.write(cols[0].text)
-            data_file.write("=")
-            data_file.write(cols[1].text)
+            data_file.write(cols[0].text)       # province
+            data_file.write(",")
+            data_file.write(cols[1].text)       # signatures
         else:
             log_file.write("{:s},".format(current_time))
             data_file.write(current_time)
